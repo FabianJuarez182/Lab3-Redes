@@ -5,7 +5,7 @@
  */
 
 // Dijkstra's algorithm for Link State Routing
-function linkStateRouting(source) {
+function linkStateRouting(source, networkTopology) {
   const distances = {};
   const previous = {};
   const nodes = new Set(Object.keys(networkTopology));
@@ -47,8 +47,8 @@ function linkStateRouting(source) {
 }
 
 // Function to find the best next hop to a destination
-function findBestNeighbor(source, destination) {
-  const { distances, previous } = linkStateRouting(source);
+function findBestNeighbor(source, destination, networkTopology) {
+  const { distances, previous } = linkStateRouting(source, networkTopology);
   let currentNode = destination;
 
   // Backtrack to find the first hop from the source
@@ -63,8 +63,8 @@ function findBestNeighbor(source, destination) {
 }
 
 // Function to find the full path to the destination
-function findDestination(source, destination) {
-  const { distances, previous } = linkStateRouting(source);
+function findDestination(source, destination, networkTopology) {
+  const { distances, previous } = linkStateRouting(source, networkTopology);
   const path = [];
   let currentNode = destination;
 
@@ -85,5 +85,14 @@ function findDestination(source, destination) {
   };
 }
 
+// Neighbor tables (network topology)
+const networkTopology = {
+  A: { B: 1, C: 4 },
+  B: { A: 1, C: 2, D: 5, E: 3 },
+  C: { A: 4, B: 2, D: 1, E: 2 },
+  D: { B: 5, C: 1, E: 1 },
+  E: { B: 3, C: 2, D: 1 },
+};
+
 // Example usage
-console.log(findDestination("A", "E"));
+console.log(findDestination("A", "E", networkTopology));
