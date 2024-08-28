@@ -39,6 +39,15 @@ function sendFloodingMessage(xmpp, from, to, payload, hops, neighbors) {
     });
 }
 
+function triggerFloodingAction(xmpp, neighbors) {
+    const from = xmpp.jid.toString(); // The JID of the sender
+    const payload = "Triggered Flooding Message!"; // The message content
+    const hops = 3; // Number of hops for the message
+
+    // Call the sendFloodingMessage function to initiate Flooding
+    sendFloodingMessage(xmpp, from, null, payload, hops, neighbors);
+}
+
 /**
  * Handles incoming messages received by the node using the Flooding algorithm.
  * 
@@ -50,18 +59,28 @@ function handleFloodingMessage(stanza, xmpp, neighbors) {
     // Parse the incoming message from JSON
     const message = JSON.parse(stanza.getChild("body").text());
 
+    console.log(`Flooding message received from ${message.from} with payload: "${message.payload}" and hops remaining: ${message.hops}`);
+
     // Check if the message can still be propagated (hops > 0)
     if (message.hops > 0) {
+        console.log(`Propagating message to neighbors...`);
         // Loop through each neighbor to propagate the message further
         Object.keys(neighbors).forEach((neighbor) => {
             // Avoid sending the message back to the sender
             if (neighbor !== message.from) {
+                console.log(`Sending to neighbor: ${neighbor}`);
                 // Send the message to each neighbor with one less hop
                 sendFloodingMessage(xmpp, message.to, neighbor, message.payload, message.hops - 1, neighbors);
             }
         });
     } else {
         // If hops = 0, the message is received by the final node
-        console.log(`Message received at ${message.to}: ${message.payload}`);
+        console.log(`Message received at ${message.to} (final destination): ${message.payload}`);
     }
 }
+
+// Export functions to be used in other modules
+module.exports = {
+    triggerFloodingAction,
+    handleFloodingMessage
+};

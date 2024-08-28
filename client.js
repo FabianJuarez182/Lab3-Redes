@@ -1,10 +1,10 @@
 const { client, xml } = require('@xmpp/client');
+const { triggerFloodingAction, handleFloodingMessage } = require('./Flooding'); // Adjust the path as necessary
 
 
-
-const jid = 'foo@alumchat.lol/a1b2c3';
-const username = 'foo@alumchat.lol';
-const password = 'yourpassword';
+const jid = 'lem21469@alumchat.lol';
+const username = 'lem21469';
+const password = 'lem21469';
 
 // Initialize the XMPP client with account details
 const xmpp = client({
@@ -15,8 +15,29 @@ const xmpp = client({
     password: password,
 });
 
-let neighbors = {}; // Mapa de vecinos con sus costos
+let neighbors = {
+    neighbor1: { jid: 'neighbor1@alumchat.lol/resource' },
+    neighbor2: { jid: 'neighbor2@alumchat.lol/resource' }
+};
 let routingTable = {}; // Tabla de enrutamiento
+
+// Event listener for when the client connects to the server
+xmpp.on('online', async (address) => {
+    console.log(`Connected as ${address.toString()}`);
+    
+    // This is where you can start sending messages or performing other actions
+});
+
+
+// Listen for standard input from the terminal (e.g., typing 'flood' to trigger the Flooding)
+process.stdin.on('data', (data) => {
+    const input = data.toString().trim();
+
+    if (input === 'flood') {
+        // Trigger the Flooding action
+        triggerFloodingAction(xmpp, neighbors);
+    }
+});
 
 xmpp.on('stanza', (stanza) => {
     if (stanza.is('message')) {
