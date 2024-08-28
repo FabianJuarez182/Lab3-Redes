@@ -1,6 +1,5 @@
 const { client, xml } = require('@xmpp/client');
-const { triggerFloodingAction, handleFloodingMessage } = require('./Flooding'); // Adjust the path as necessary
-
+const { triggerFloodingAction, handleFloodingMessage } = require('./Flooding');
 
 const jid = 'lem21469@alumchat.lol';
 const username = 'lem21469';
@@ -16,8 +15,8 @@ const xmpp = client({
 });
 
 let neighbors = {
-    neighbor1: { jid: 'neighbor1@alumchat.lol/resource' },
-    neighbor2: { jid: 'neighbor2@alumchat.lol/resource' }
+    neighbor1: { jid: 'lem21469-test@alumchat.lol/a1b2c3' },
+    neighbor2: { jid: 'neighbor2@alumchat.lol/a1b2c3' }
 };
 let routingTable = {}; // Tabla de enrutamiento
 
@@ -25,7 +24,6 @@ let routingTable = {}; // Tabla de enrutamiento
 xmpp.on('online', async (address) => {
     console.log(`Connected as ${address.toString()}`);
     
-    // This is where you can start sending messages or performing other actions
 });
 
 

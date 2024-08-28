@@ -1,3 +1,5 @@
+const { xml } = require('@xmpp/client');
+
 /**
  * @author Daniel Gomez 21429
  * @author Fabian Juarez 21440
