@@ -4,6 +4,8 @@ const {
   getNodeCredentials,
   promptForAction,
   askForRole,
+  askForHops,
+  askForPayload,
 } = require("./inputHandler");
 const {
   triggerFloodingAction,
@@ -47,7 +49,7 @@ getNodeCredentials((err, nodeData) => {
         askForRole((role) => {
           if (role === "1") {
             console.log("\nYou are functioning as a sender.\n");
-            // Obtener el nodo actual usando la etiqueta
+
             const currentNodeTag = nodeData.tag;
             const nodeRoutes = floodRoutes[currentNodeTag];
 
@@ -58,15 +60,18 @@ getNodeCredentials((err, nodeData) => {
               process.exit(1);
             }
 
-            // Crear la lista de vecinos usando las rutas del nodo actual
-            const neighbors = nodeRoutes.reduce((acc, route) => {
-              const neighborNodeTag = route.path;
-              const neighborUser = nodes[neighborNodeTag].user; // Obtener el usuario desde nodes.json
-              acc[neighborNodeTag] = { jid: `${neighborUser}/a1b2c3` };
-              return acc;
-            }, {});
+            askForPayload((payload) => {
+              askForHops((hops) => {
+                const neighbors = nodeRoutes.reduce((acc, route) => {
+                  const neighborNodeTag = route.path;
+                  const neighborUser = nodes[neighborNodeTag].user;
+                  acc[neighborNodeTag] = { jid: `${neighborUser}/a1b2c3` };
+                  return acc;
+                }, {});
 
-            triggerFloodingAction(xmpp, neighbors);
+                triggerFloodingAction(xmpp, neighbors, payload, hops);
+              });
+            });
           } else if (role === "2") {
             console.log(
               "\nYou are functioning as a receiver. Listening for messages...\n"

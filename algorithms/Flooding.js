@@ -34,10 +34,8 @@ function sendFloodingMessage(xmpp, from, payload, hops, neighbors) {
     });
 }
 
-function triggerFloodingAction(xmpp, neighbors) {
+function triggerFloodingAction(xmpp, neighbors, payload, hops) {
     const from = xmpp.jid.toString();
-    const payload = "Triggered Flooding Message!";
-    const hops = 3;
 
     sendFloodingMessage(xmpp, from, payload, hops, neighbors);
 }
@@ -54,25 +52,23 @@ function handleFloodingMessage(stanza, xmpp, neighbors) {
     const messageId = `${message.from}-${message.payload}`;
 
     // If the message was originated by this node, ignore it to avoid loops
-    if (message.from === xmpp.jid.toString()) {
-        console.log("\nMessage originated from this node, ignoring...");
-        return;
-    }
-
-    if (receivedMessages.has(messageId)) {
-        console.log("\nMessage already received, skipping...");
+    if (message.from === xmpp.jid.toString() || receivedMessages.has(messageId)) {
+        console.log("Message already received or originated from this node, skipping...");
         return;
     }
 
     receivedMessages.add(messageId);
 
-    console.log(`Flooding message received from ${message.from} with payload: "${message.payload}" and hops remaining: ${message.hops}\n`);
+    // Decrement the hops before propagating
+    const remainingHops = message.hops - 1;
 
-    if (message.hops > 0) {
+    if (remainingHops > 0) {
+        console.log(`Flooding message received from ${message.from} with payload: "${message.payload}" and hops remaining: ${remainingHops}\n`);
         console.log(`Propagating message to neighbors...`);
-        sendFloodingMessage(xmpp, message.from, message.payload, message.hops - 1, neighbors);
+        sendFloodingMessage(xmpp, message.from, message.payload, remainingHops, neighbors);
     } else {
-        console.log(`Message received at final destination or hops exhausted: ${message.payload}`);
+        // When hops decrement to zero, indicate that the transmission stops here
+        console.log(`Flooding message received from ${message.from} with payload: "${message.payload}" but no hops remain. Transmission stops here.`);
     }
 }
 
