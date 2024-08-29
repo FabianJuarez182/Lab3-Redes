@@ -1,17 +1,13 @@
 const { client, xml } = require("@xmpp/client");
 const { triggerLSRAction, handleLSRMessage } = require("./algorithms/LSR");
-const { getNodeCredentials, promptForAction } = require("./inputHandler");
-
-const {
-    triggerFloodingAction,
-    handleFloodingMessage,
-} = require("./algorithms/Flooding");
+const { getNodeCredentials, promptForAction, askForRole } = require('./inputHandler');
+const { triggerFloodingAction, handleFloodingMessage } = require("./algorithms/Flooding");
+const fs = require('fs');
 
 let xmpp;
-let neighbors = {
-    neighbor1: { jid: "lem21469-test@alumchat.lol/a1b2c3" },
-    neighbor2: { jid: "neighbor2@alumchat.lol/a1b2c3" },
-};
+
+const floodRoutes = JSON.parse(fs.readFileSync('./maps/test.json', 'utf8')).routes;
+const nodes = JSON.parse(fs.readFileSync('./maps/nodes.json', 'utf8')).nodes;
 
 let routingTable = {
     "gom21429@alumchat.lol/a1b2c3": {
@@ -60,7 +56,35 @@ getNodeCredentials((err, nodeData) => {
         promptForAction((action) => {
 
             if (action === "flood") {
-                triggerFloodingAction(xmpp, neighbors);
+                askForRole((role) => {
+                    if (role === "1") {
+                        console.log("You are functioning as a sender.");
+                        // Obtener el nodo actual usando la etiqueta
+                        const currentNodeTag = nodeData.tag;
+                        console.log(`Current node: ${currentNodeTag}`);
+                        const nodeRoutes = floodRoutes[currentNodeTag];
+
+                        if (!nodeRoutes) {
+                            console.error(`No routes found for node ${currentNodeTag}. Please check test.json.`);
+                            process.exit(1);
+                        }
+
+                        // Crear la lista de vecinos usando las rutas del nodo actual
+                        const neighbors = nodeRoutes.reduce((acc, route) => {
+                            const neighborNodeTag = route.path;
+                            const neighborUser = nodes[neighborNodeTag].user; // Obtener el usuario desde nodes.json
+                            acc[neighborNodeTag] = { jid: `${neighborUser}/a1b2c3` };
+                            return acc;
+                        }, {});
+
+                        triggerFloodingAction(xmpp, neighbors);
+                    } else if (role === "2") {
+                        console.log("You are functioning as a receiver. Listening for messages...");
+                        // The handleFloodingMessage will be triggered upon receiving a message stanza.
+                    } else {
+                        console.log(`Unknown role: ${role}`);
+                    }
+                });
 
             } else if (action === "lsr") {
                 // Agregar llamada a LSR
@@ -78,9 +102,19 @@ getNodeCredentials((err, nodeData) => {
             if (body) {
                 const message = JSON.parse(body.text());
                 if (message.type === "flooding") {
+                    const currentNodeTag = nodeData.tag;
+                    const nodeRoutes = floodRoutes[currentNodeTag];
+
+                    const neighbors = nodeRoutes.reduce((acc, route) => {
+                        const neighborNodeTag = route.path;
+                        const neighborUser = nodes[neighborNodeTag].user;
+                        acc[neighborNodeTag] = { jid: `${neighborUser}/a1b2c3` };
+                        return acc;
+                    }, {});
+
                     handleFloodingMessage(stanza, xmpp, neighbors);
                 } else if (message.type === "linkstate") {
-                    handleLinkStateMessage(stanza, xmpp, neighbors);
+                    handleLSRMessage(stanza, xmpp, routingTable);
                 } else {
                     console.log(`Unknown message type: ${message.type}`);
                 }

@@ -2,10 +2,10 @@
     "type": "map",
     "routes":
     {
-        "A": [{"path": "B", "cost": 1}, {"path": "C", "cost": 1}, {"path": "D", "cost": 2}],
+        "A": [{"path": "B", "cost": 1}, {"path": "C", "cost": 1}, {"path": "D", "cost": 1}],
         "B": [{"path": "A", "cost": 1}, {"path": "C", "cost": 1}],
-        "C": [{"path": "A", "cost": 1}, {"path": "B", "cost": 1}, {"path": "E", "cost": 3}],
-        "D": [{"path": "A", "cost": 2}],
-        "E": [{"path": "C", "cost": 3}]
+        "C": [{"path": "A", "cost": 1}, {"path": "B", "cost": 1}, {"path": "E", "cost": 1}],
+        "D": [{"path": "A", "cost": 1}],
+        "E": [{"path": "C", "cost": 1}]
     }
 }

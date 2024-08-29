@@ -1,0 +1,9 @@
+{
+    "type": "map",
+    "routes":
+    {
+        "A": [{"path": "B", "cost": 1}],
+        "B": [{"path": "A", "cost": 1}, {"path": "C", "cost": 1}],
+        "C": [{"path": "A", "cost": 1}]
+    }
+}
