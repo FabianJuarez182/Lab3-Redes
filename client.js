@@ -18,9 +18,6 @@ const floodRoutes = JSON.parse(
 ).routes;
 const nodes = JSON.parse(fs.readFileSync("./maps/nodes.json", "utf8")).nodes;
 
-// read json file from ./maps/jsr.json as routingTable
-const routingTable = JSON.parse(fs.readFileSync("./maps/lsr.json", "utf8"));
-
 getNodeCredentials((err, nodeData) => {
   if (err) {
     console.error(err.message);
@@ -82,8 +79,7 @@ getNodeCredentials((err, nodeData) => {
       } else if (action.includes("lsr")) {
         // Agregar llamada a LSR
         const destination = action.split("#")[1];
-        console.log(`Triggering LSR action to ${destination}`);
-        triggerLSRAction(xmpp, routingTable, destination);
+        triggerLSRAction(xmpp, destination);
       } else {
         console.log(`Unknown command: ${action}`);
       }
@@ -108,7 +104,7 @@ getNodeCredentials((err, nodeData) => {
 
           handleFloodingMessage(stanza, xmpp, neighbors);
         } else if (message.type === "lsr") {
-          handleLSRMessage(stanza, xmpp, routingTable);
+          handleLSRMessage(stanza, xmpp);
         } else {
           console.log(`Unknown message type: ${message.type}`);
         }
