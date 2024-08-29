@@ -58,10 +58,9 @@ getNodeCredentials((err, nodeData) => {
             if (action === "flood") {
                 askForRole((role) => {
                     if (role === "1") {
-                        console.log("You are functioning as a sender.");
+                        console.log("\nYou are functioning as a sender.\n");
                         // Obtener el nodo actual usando la etiqueta
                         const currentNodeTag = nodeData.tag;
-                        console.log(`Current node: ${currentNodeTag}`);
                         const nodeRoutes = floodRoutes[currentNodeTag];
 
                         if (!nodeRoutes) {
@@ -79,7 +78,7 @@ getNodeCredentials((err, nodeData) => {
 
                         triggerFloodingAction(xmpp, neighbors);
                     } else if (role === "2") {
-                        console.log("You are functioning as a receiver. Listening for messages...");
+                        console.log("\nYou are functioning as a receiver. Listening for messages...\n");
                         // The handleFloodingMessage will be triggered upon receiving a message stanza.
                     } else {
                         console.log(`Unknown role: ${role}`);
