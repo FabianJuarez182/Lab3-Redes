@@ -68,7 +68,7 @@ function handleFloodingMessage(stanza, xmpp, neighbors) {
         sendFloodingMessage(xmpp, message.from, message.payload, remainingHops, neighbors);
     } else {
         // When hops decrement to zero, indicate that the transmission stops here
-        console.log(`Flooding message received from ${message.from} with payload: "${message.payload}" but no hops remain. Transmission stops here.`);
+        console.log(`\nFlooding message received from ${message.from} with payload: "${message.payload}" but no hops remain. Transmission stops here.`);
     }
 }
 
