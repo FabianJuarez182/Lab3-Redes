@@ -1,24 +1,30 @@
 const readline = require('readline');
 const fs = require('fs');
 
-// Función para obtener las credenciales del nodo
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
+
+const nodes = JSON.parse(fs.readFileSync('./maps/nodes.json', 'utf8'));
+
 const getNodeCredentials = (callback) => {
-    const rl = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout
-    });
-
-        const nodes = JSON.parse(fs.readFileSync('./maps/nodes.json', 'utf8'));
-
-    rl.question('Please enter the node you would like to use (A, B, C, D, E): ', (node) => {
+    rl.question('Please enter the node you would like to use (e.g., A, B, C, D, E): ', (node) => {
         const nodeData = nodes.nodes[node];
-        rl.close();
         if (nodeData) {
             callback(null, nodeData);
         } else {
-            callback(new Error('Invalid node selection. Please restart the program and select a valid node.'));
+            console.error('Invalid node selection. Please restart the program and select a valid node.');
+            rl.close();
+            process.exit(1);
         }
     });
 };
 
-module.exports = { getNodeCredentials };
+const promptForAction = (callback) => {
+    rl.question('Please enter the command (e.g., "flood" or "LSR" to trigger the corresponding algorithm): ', (action) => {
+        callback(action);
+    });
+};
+
+module.exports = { getNodeCredentials, promptForAction };
