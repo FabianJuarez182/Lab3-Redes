@@ -1,0 +1,24 @@
+{
+  "gom21429@alumchat.lol/a1b2c3": {
+    "jdgomezv1@alumchat.lol/a1b2c3": 1,
+    "jdgomezv2@alumchat.lol/a1b2c3": 2
+  },
+  "jdgomezv1@alumchat.lol/a1b2c3": {
+    "jdgomezv2@alumchat.lol/a1b2c3": 1,
+    "jdgomezv3@alumchat.lol/a1b2c3": 3
+  },
+  "jdgomezv2@alumchat.lol/a1b2c3": {
+    "jdgomezv1@alumchat.lol/a1b2c3": 2,
+    "jdgomezv3@alumchat.lol/a1b2c3": 3
+  },
+  "jdgomezv3@alumchat.lol/a1b2c3": {
+    "jdgomezv1@alumchat.lol/a1b2c3": 2,
+    "jdgomezv4@alumchat.lol/a1b2c3": 2,
+    "jdgomezv2@alumchat.lol/a1b2c3": 3
+  },
+  "jdgomezv4@alumchat.lol/a1b2c3": {
+    "jdgomezv2@alumchat.lol/a1b2c3": 2,
+    "jdgomezv1@alumchat.lol/a1b2c3": 2,
+    "jdgomezv3@alumchat.lol/a1b2c3": 3
+  }
+}
