@@ -19,23 +19,23 @@ const { xml } = require('@xmpp/client');
  * @param {Object} neighbors - A map of neighboring nodes and their associated details.
  */
 function sendFloodingMessage(xmpp, from, to, payload, hops, neighbors) {
-    // Constructing the message object
-    const message = {
-        type: "flooding",  // Message type is 'Flooding' message
-        from: from,       // Sender's JID
-        to: to,           // Target recipient's JID
-        hops: hops,       // Remaining number of hops before the message is discarded
-        payload: payload  // The actual message content
-    };
-
     // Loop through each neighbor and send the message if it hasn't been sent from that neighbor
     Object.keys(neighbors).forEach((neighbor) => {
+        
+        const message = {
+            type: "flooding",                       // Message type is 'Flooding' message
+            from: from,                             // Sender's JID
+            to: neighbors[neighbor].jid,            // Target recipient's JID
+            hops: hops,                             // Remaining number of hops before the message is discarded
+            payload: payload                        // The actual message content
+        };
+
         if (neighbor !== from) {
             // Send the message to each neighbor using XMPP
             xmpp.send(xml(
-                'message',                        // XMPP message stanza
-                { to: neighbors[neighbor].jid },  // Send to the neighbor's JID
-                xml('body', {}, JSON.stringify(message)) // Convert the message object to a JSON string
+                'message',                                  // XMPP message stanza
+                { to: message.to },                         // Send to the neighbor's JID
+                xml('body', {}, JSON.stringify(message))    // Convert the message object to a JSON string
             ));
         }
     });

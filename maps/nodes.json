@@ -1,0 +1,11 @@
+{
+    "type": "tags",
+    "nodes":
+    {
+        "A": {"user": "lem21469@alumchat.lol", "pass": "lem21469"},
+        "B": {"user": "lem21469-1@alumchat.lol", "pass": "lem21469"},
+        "C": {"user": "lem21469-2@alumchat.lol", "pass": "lem21469"},
+        "D": {"user": "lem21469-3@alumchat.lol", "pass": "lem21469"},
+        "E": {"user": "lem21469-4@alumchat.lol", "pass": "lem21469"}
+    }
+}
