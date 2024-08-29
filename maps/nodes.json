@@ -1,11 +1,10 @@
 {
-    "type": "tags",
-    "nodes":
-    {
-        "A": {"user": "lem21469@alumchat.lol", "pass": "lem21469"},
-        "B": {"user": "lem21469-1@alumchat.lol", "pass": "lem21469"},
-        "C": {"user": "lem21469-2@alumchat.lol", "pass": "lem21469"},
-        "D": {"user": "lem21469-3@alumchat.lol", "pass": "lem21469"},
-        "E": {"user": "lem21469-4@alumchat.lol", "pass": "lem21469"}
-    }
+  "type": "tags",
+  "nodes": {
+    "A": { "user": "gom21429@alumchat.lol", "pass": "admin" },
+    "B": { "user": "jdgomezv1@alumchat.lol", "pass": "admin" },
+    "C": { "user": "jdgomezv2@alumchat.lol", "pass": "admin" },
+    "D": { "user": "jdgomezv3@alumchat.lol", "pass": "admin" },
+    "E": { "user": "jdgomezv4@alumchat.lol", "pass": "admin" }
+  }
 }
