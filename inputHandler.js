@@ -30,7 +30,7 @@ const promptForAction = (callback) => {
   rl.question(
     'Please enter the command ("flood" or "lsr#destination"): ',
     (action) => {
-      callback(action);
+      callback(action.trim().toLowerCase());
     }
   );
 };
@@ -44,4 +44,27 @@ const askForRole = (callback) => {
   );
 };
 
-module.exports = { getNodeCredentials, promptForAction, askForRole };
+const askForHops = (callback) => {
+  rl.question("Please enter the number of hops: ", (hops) => {
+    const hopsNumber = parseInt(hops, 10);
+    if (isNaN(hopsNumber) || hopsNumber <= 0) {
+      console.error("Invalid number of hops. Please enter a positive integer.");
+      process.exit(1);
+    } else {
+      callback(hopsNumber);
+    }
+  });
+};
+
+const askForPayload = (callback) => {
+  rl.question("Please enter the payload to send: ", (payload) => {
+    if (!payload.trim()) {
+      console.error("Payload cannot be empty. Please enter a valid payload.");
+      process.exit(1);
+    } else {
+      callback(payload.trim());
+    }
+  });
+};
+
+module.exports = { getNodeCredentials, promptForAction, askForRole, askForHops, askForPayload };

@@ -1,24 +1,29 @@
 {
-  "gom21429@alumchat.lol/a1b2c3": {
-    "jdgomezv1@alumchat.lol/a1b2c3": 1,
-    "jdgomezv2@alumchat.lol/a1b2c3": 2
-  },
-  "jdgomezv1@alumchat.lol/a1b2c3": {
-    "jdgomezv2@alumchat.lol/a1b2c3": 1,
-    "jdgomezv3@alumchat.lol/a1b2c3": 3
-  },
-  "jdgomezv2@alumchat.lol/a1b2c3": {
-    "jdgomezv1@alumchat.lol/a1b2c3": 2,
-    "jdgomezv3@alumchat.lol/a1b2c3": 3
-  },
-  "jdgomezv3@alumchat.lol/a1b2c3": {
-    "jdgomezv1@alumchat.lol/a1b2c3": 2,
-    "jdgomezv4@alumchat.lol/a1b2c3": 2,
-    "jdgomezv2@alumchat.lol/a1b2c3": 3
-  },
-  "jdgomezv4@alumchat.lol/a1b2c3": {
-    "jdgomezv2@alumchat.lol/a1b2c3": 2,
-    "jdgomezv1@alumchat.lol/a1b2c3": 2,
-    "jdgomezv3@alumchat.lol/a1b2c3": 3
+  "type": "map",
+  "routes": {
+    "A": [
+      { "path": "B", "cost": 1 },
+      { "path": "C", "cost": 2 }
+    ],
+    "B": [
+      { "path": "A", "cost": 1 },
+      { "path": "C", "cost": 1 },
+      { "path": "D", "cost": 3 }
+    ],
+    "C": [
+      { "path": "A", "cost": 2 },
+      { "path": "B", "cost": 1 },
+      { "path": "D", "cost": 3 },
+      { "path": "E", "cost": 2 }
+    ],
+    "D": [
+      { "path": "B", "cost": 3 },
+      { "path": "C", "cost": 3 },
+      { "path": "E", "cost": 2 }
+    ],
+    "E": [
+      { "path": "C", "cost": 2 },
+      { "path": "D", "cost": 2 }
+    ]
   }
 }

@@ -4,6 +4,8 @@ const {
   getNodeCredentials,
   promptForAction,
   askForRole,
+  askForHops,
+  askForPayload,
 } = require("./inputHandler");
 const {
   triggerFloodingAction,
@@ -17,9 +19,6 @@ const floodRoutes = JSON.parse(
   fs.readFileSync("./maps/test.json", "utf8")
 ).routes;
 const nodes = JSON.parse(fs.readFileSync("./maps/nodes.json", "utf8")).nodes;
-
-// read json file from ./maps/jsr.json as routingTable
-const routingTable = JSON.parse(fs.readFileSync("./maps/lsr.json", "utf8"));
 
 getNodeCredentials((err, nodeData) => {
   if (err) {
@@ -50,7 +49,7 @@ getNodeCredentials((err, nodeData) => {
         askForRole((role) => {
           if (role === "1") {
             console.log("\nYou are functioning as a sender.\n");
-            // Obtener el nodo actual usando la etiqueta
+
             const currentNodeTag = nodeData.tag;
             const nodeRoutes = floodRoutes[currentNodeTag];
 
@@ -61,15 +60,18 @@ getNodeCredentials((err, nodeData) => {
               process.exit(1);
             }
 
-            // Crear la lista de vecinos usando las rutas del nodo actual
-            const neighbors = nodeRoutes.reduce((acc, route) => {
-              const neighborNodeTag = route.path;
-              const neighborUser = nodes[neighborNodeTag].user; // Obtener el usuario desde nodes.json
-              acc[neighborNodeTag] = { jid: `${neighborUser}/a1b2c3` };
-              return acc;
-            }, {});
+            askForPayload((payload) => {
+              askForHops((hops) => {
+                const neighbors = nodeRoutes.reduce((acc, route) => {
+                  const neighborNodeTag = route.path;
+                  const neighborUser = nodes[neighborNodeTag].user;
+                  acc[neighborNodeTag] = { jid: `${neighborUser}/a1b2c3` };
+                  return acc;
+                }, {});
 
-            triggerFloodingAction(xmpp, neighbors);
+                triggerFloodingAction(xmpp, neighbors, payload, hops);
+              });
+            });
           } else if (role === "2") {
             console.log(
               "\nYou are functioning as a receiver. Listening for messages...\n"
@@ -82,8 +84,7 @@ getNodeCredentials((err, nodeData) => {
       } else if (action.includes("lsr")) {
         // Agregar llamada a LSR
         const destination = action.split("#")[1];
-        console.log(`Triggering LSR action to ${destination}`);
-        triggerLSRAction(xmpp, routingTable, destination);
+        triggerLSRAction(xmpp, destination);
       } else {
         console.log(`Unknown command: ${action}`);
       }
@@ -108,7 +109,7 @@ getNodeCredentials((err, nodeData) => {
 
           handleFloodingMessage(stanza, xmpp, neighbors);
         } else if (message.type === "lsr") {
-          handleLSRMessage(stanza, xmpp, routingTable);
+          handleLSRMessage(stanza, xmpp);
         } else {
           console.log(`Unknown message type: ${message.type}`);
         }

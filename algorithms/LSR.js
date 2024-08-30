@@ -1,13 +1,31 @@
 const { xml } = require("@xmpp/client");
+const fs = require("fs");
 
-/**
- * @author Daniel Gomez 21429
- * @author Fabian Juarez 21440
- * @author Diego Lemus 21469
- */
+// Load the routing table and node mappings
+const routingTable = JSON.parse(
+  fs.readFileSync("./maps/lsr.json", "utf8")
+).routes;
+const nodeMappings = JSON.parse(
+  fs.readFileSync("./maps/nodes.json", "utf8")
+).nodes;
+
+// Function to convert JID to node letter
+function jidToNode(jid) {
+  for (const [node, data] of Object.entries(nodeMappings)) {
+    if (data.user === jid.split("/")[0]) {
+      return node;
+    }
+  }
+  return null;
+}
+
+// Function to convert node letter to JID
+function nodeToJid(node) {
+  return `${nodeMappings[node].user}/a1b2c3`;
+}
 
 // Dijkstra's algorithm for Link State Routing
-function linkStateRouting(source, routingTable) {
+function linkStateRouting(source, destination) {
   const distances = {};
   const previous = {};
   const nodes = new Set(Object.keys(routingTable));
@@ -36,69 +54,46 @@ function linkStateRouting(source, routingTable) {
     nodes.delete(closestNode);
 
     // Update distances to the neighboring nodes
-    for (let [neighbor, cost] of Object.entries(routingTable[closestNode])) {
-      let altDistance = distances[closestNode] + cost;
-      if (altDistance < distances[neighbor]) {
-        distances[neighbor] = altDistance;
-        previous[neighbor] = closestNode;
+    for (let neighbor of routingTable[closestNode]) {
+      let altDistance = distances[closestNode] + neighbor.cost;
+      if (altDistance < distances[neighbor.path]) {
+        distances[neighbor.path] = altDistance;
+        previous[neighbor.path] = closestNode;
       }
     }
   }
 
-  return { distances, previous };
-}
-
-// Function to find the best next hop to a destination
-function findBestNeighbor(source, destination, routingTable) {
-  // verify that the destination is on the routing table
-  if (!routingTable[destination]) {
-    console.log(`Destination ${destination} not found in routing table`);
-    return { bestNeighbor: null, totalCost: Infinity };
-  }
-  const { distances, previous } = linkStateRouting(source, routingTable);
-  let currentNode = destination;
-
-  // Backtrack to find the first hop from the source
-  while (previous[currentNode] !== source && previous[currentNode] !== null) {
-    currentNode = previous[currentNode];
-  }
-
-  return {
-    bestNeighbor: currentNode,
-    totalCost: distances[destination],
-  };
-}
-
-// Function to find the full path to the destination
-function findDestination(source, destination, routingTable) {
-  const { distances, previous } = linkStateRouting(source, routingTable);
+  // Reconstruct the path
   const path = [];
   let currentNode = destination;
-
-  // Destination is unreachable
-  if (distances[destination] === Infinity) {
-    return { path: null, totalCost: Infinity };
-  }
-
-  // Reconstruct the path
   while (currentNode !== null) {
     path.unshift(currentNode);
     currentNode = previous[currentNode];
   }
 
+  return { path, totalCost: distances[destination] };
+}
+
+// Function to find the best next hop to a destination
+function findBestNeighbor(source, destination) {
+  const { path, totalCost } = linkStateRouting(source, destination);
+
+  if (path.length < 2) {
+    return { bestNeighbor: null, totalCost: Infinity };
+  }
+
   return {
-    path,
-    totalCost: distances[destination],
+    bestNeighbor: path[1],
+    totalCost: totalCost,
   };
 }
 
 // Function to send LSR message
-function sendLSRMessage(xmpp, from, to, payload, costs, destination) {
+function sendLSRMessage(xmpp, from, to, payload, destination) {
   const message = {
     type: "lsr",
     from: from,
     to: to,
-    costs: costs,
     payload: payload,
     destination: destination,
   };
@@ -109,70 +104,70 @@ function sendLSRMessage(xmpp, from, to, payload, costs, destination) {
 }
 
 // Function to trigger LSR action
-function triggerLSRAction(xmpp, routingTable, destination) {
-  const from = xmpp.jid.toString();
+function triggerLSRAction(xmpp, destinationJid) {
+  const fromJid = xmpp.jid.toString().split("/")[0];
+  const fromNode = jidToNode(fromJid);
+  const destinationNode = jidToNode(destinationJid);
   const payload = "LSR Message";
-  const costs = routingTable[from];
-  console.log(`Sending message for: ${destination}`);
 
-  // Choose a random destination from the routing table
-  // const destinations = Object.keys(routingTable);
-  // const destination = destinations[Math.floor(Math.random() * destinations.length)];
+  console.log(`Sending message from ${fromNode} to ${destinationNode}`);
 
-  // verify that destination is not the same as the current node
-  if (destination === from) {
+  if (fromNode === destinationNode) {
     console.log("Error: Destination cannot be the same as the current node\n");
     return;
   }
 
   const { bestNeighbor, totalCost } = findBestNeighbor(
-    from,
-    destination,
-    routingTable
+    fromNode,
+    destinationNode
   );
 
   if (bestNeighbor) {
     console.log(
-      `Sending LSR message to ${destination} via ${bestNeighbor} with total cost ${totalCost}`
+      `Sending LSR message to ${destinationNode} via ${bestNeighbor} with total cost ${totalCost}`
     );
-    sendLSRMessage(xmpp, from, bestNeighbor, payload, costs, destination);
+    const nextHopJid = nodeToJid(bestNeighbor);
+    sendLSRMessage(xmpp, fromJid, nextHopJid, payload, destinationJid);
   } else {
-    console.log(`No route found to ${destination}`);
+    console.log(`No route found to ${destinationNode}`);
   }
 }
 
 // Function to handle incoming LSR messages
-function handleLSRMessage(stanza, xmpp, routingTable) {
+function handleLSRMessage(stanza, xmpp) {
   const message = JSON.parse(stanza.getChild("body").text());
-  const currentJid = xmpp.jid.toString();
+  const currentJid = xmpp.jid.toString().split("/")[0];
+  const currentNode = jidToNode(currentJid);
+  const destinationNode = jidToNode(message.destination);
 
   console.log(
-    `LSR message received from ${message.from} with payload: "${message.payload}"`
+    `LSR message received at ${currentNode} from ${jidToNode(
+      message.from
+    )} with payload: "${message.payload}"`
   );
 
-  if (message.destination === currentJid) {
+  if (currentNode === destinationNode) {
     console.log(`Message received at final destination: ${message.payload}`);
   } else {
     const { bestNeighbor, totalCost } = findBestNeighbor(
-      currentJid,
-      message.destination,
-      routingTable
+      currentNode,
+      destinationNode
     );
 
     if (bestNeighbor) {
       console.log(
-        `Forwarding LSR message to ${message.destination} via ${bestNeighbor} with remaining cost ${totalCost}`
+        `Forwarding LSR message from ${currentNode} to ${destinationNode} via ${bestNeighbor} with remaining cost ${totalCost}`
       );
+      const nextHopJid = nodeToJid(bestNeighbor);
       sendLSRMessage(
         xmpp,
         currentJid,
-        bestNeighbor,
+        nextHopJid,
         message.payload,
-        routingTable[currentJid],
         message.destination
       );
     } else {
-      console.log(`No route found to ${message.destination}`);
+      console.log(`No route found to ${destinationNode}`);
     }
   }
 }
