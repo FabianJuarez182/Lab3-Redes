@@ -1,5 +1,5 @@
 const { client, xml } = require("@xmpp/client");
-const { triggerLSRAction, handleLSRMessage } = require("./algorithms/LSR");
+const { triggerLSRAction, handleLSRMessage, nodeToJid  } = require("./algorithms/LSR");
 const {
   getNodeCredentials,
   promptForAction,
@@ -44,7 +44,7 @@ getNodeCredentials((err, nodeData) => {
     const presence = xml("presence");
     xmpp.send(presence);
 
-    promptForAction((action) => {
+    promptForAction(({ action, destination }) => {
       if (action === "flood") {
         askForRole((role) => {
           if (role === "1") {
@@ -81,10 +81,8 @@ getNodeCredentials((err, nodeData) => {
             console.log(`Unknown role: ${role}`);
           }
         });
-      } else if (action.includes("lsr")) {
-        // Agregar llamada a LSR
-        const destination = action.split("#")[1];
-        triggerLSRAction(xmpp, destination);
+      } else if (action === "lsr") {
+        triggerLSRAction(xmpp, nodeToJid(destination));
       } else {
         console.log(`Unknown command: ${action}`);
       }

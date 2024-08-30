@@ -175,4 +175,5 @@ function handleLSRMessage(stanza, xmpp) {
 module.exports = {
   triggerLSRAction,
   handleLSRMessage,
+  nodeToJid,
 };

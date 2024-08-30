@@ -28,11 +28,16 @@ const getNodeCredentials = (callback) => {
 
 const promptForAction = (callback) => {
   rl.question(
-    'Please enter the command ("flood" or "lsr#destination"): ',
+    'Please enter the command ("flood" or "lsr"): ',
     (action) => {
-      callback(action.trim().toLowerCase());
-    }
-  );
+      if (action === "lsr") {
+        rl.question("Please enter the destination node (A, B, C, D, E): ", (destination) => {
+          callback({ action, destination: destination.trim().toUpperCase() });
+        });
+      } else if (action === "flood") {
+        callback(action.trim().toLowerCase());
+      }
+    });
 };
 
 const askForRole = (callback) => {
