@@ -1,11 +1,12 @@
 const { client, xml } = require("@xmpp/client");
-const { triggerLSRAction, handleLSRMessage, nodeToJid  } = require("./algorithms/LSR");
+const { triggerLSRAction, handleLSRMessage, nodeToJid, printRoutingTable  } = require("./algorithms/LSR");
 const {
   getNodeCredentials,
   promptForAction,
   askForRole,
   askForHops,
   askForPayload,
+  rl,
 } = require("./inputHandler");
 const {
   triggerFloodingAction,
@@ -44,7 +45,7 @@ getNodeCredentials((err, nodeData) => {
     const presence = xml("presence");
     xmpp.send(presence);
 
-    promptForAction(({ action, destination }) => {
+    promptForAction(({ action}) => {
       if (action === "flood") {
         askForRole((role) => {
           if (role === "1") {
@@ -82,7 +83,13 @@ getNodeCredentials((err, nodeData) => {
           }
         });
       } else if (action === "lsr") {
-        triggerLSRAction(xmpp, nodeToJid(destination));
+          // Imprimir la tabla de enrutamiento antes de solicitar el nodo destino
+          printRoutingTable(nodeData.tag);
+
+          // Preguntar por el nodo destino
+          rl.question("Please enter the destination node (A, B, C, D, E): ", (destination) => {
+              triggerLSRAction(xmpp, nodeToJid(destination.trim().toUpperCase()));
+          });
       } else {
         console.log(`Unknown command: ${action}`);
       }

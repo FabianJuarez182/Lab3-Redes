@@ -88,6 +88,23 @@ function findBestNeighbor(source, destination) {
   };
 }
 
+function printRoutingTable(nodeId) {
+  console.log(`Routing Table for Node ${nodeId}:`);
+  const table = {};
+
+  for (let destination in nodeMappings) {
+      if (destination !== nodeId) {
+          const { path, totalCost } = linkStateRouting(nodeId, destination);
+          table[destination] = {
+              "Next Hop": path.length > 1 ? path[1] : "-",
+              "Cost": totalCost
+          };
+      }
+  }
+
+  console.table(table);
+}
+
 // Function to send LSR message
 function sendLSRMessage(xmpp, from, to, payload, destination) {
   const message = {
@@ -141,7 +158,7 @@ function handleLSRMessage(stanza, xmpp) {
   const destinationNode = jidToNode(message.destination);
 
   console.log(
-    `LSR message received at ${currentNode} from ${jidToNode(
+    `\n\nLSR message received at ${currentNode} from ${jidToNode(
       message.from
     )} with payload: "${message.payload}"`
   );
@@ -176,4 +193,5 @@ module.exports = {
   triggerLSRAction,
   handleLSRMessage,
   nodeToJid,
+  printRoutingTable,
 };

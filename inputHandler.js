@@ -30,12 +30,12 @@ const promptForAction = (callback) => {
   rl.question(
     'Please enter the command ("flood" or "lsr"): ',
     (action) => {
-      if (action === "lsr") {
-        rl.question("Please enter the destination node (A, B, C, D, E): ", (destination) => {
-          callback({ action, destination: destination.trim().toUpperCase() });
-        });
-      } else if (action === "flood") {
-        callback(action.trim().toLowerCase());
+      const trimmedAction = action.trim().toLowerCase();
+      if (trimmedAction === "lsr" || trimmedAction === "flood") {
+        callback({ action: trimmedAction });
+      } else {
+        console.log(`Unknown command: ${trimmedAction}`);
+        callback({ action: "unknown" });
       }
     });
 };
@@ -72,4 +72,4 @@ const askForPayload = (callback) => {
   });
 };
 
-module.exports = { getNodeCredentials, promptForAction, askForRole, askForHops, askForPayload };
+module.exports = { getNodeCredentials, promptForAction, askForRole, askForHops, askForPayload, rl};
