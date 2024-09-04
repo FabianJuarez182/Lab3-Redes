@@ -87,7 +87,7 @@ getNodeCredentials((err, nodeData) => {
           printRoutingTable(nodeData.tag);
 
           // Preguntar por el nodo destino
-          rl.question("Please enter the destination node (A, B, C, D, E): ", (destination) => {
+          rl.question("Please enter the destination node (A, B, C, D, E, F): ", (destination) => {
               triggerLSRAction(xmpp, nodeToJid(destination.trim().toUpperCase()));
           });
       } else {

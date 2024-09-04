@@ -1,9 +1,37 @@
 {
     "type": "map",
-    "routes":
-    {
-        "A": [{"path": "B", "cost": 1}],
-        "B": [{"path": "A", "cost": 1}, {"path": "C", "cost": 1}],
-        "C": [{"path": "A", "cost": 1}]
+    "routes": {
+        "A": [
+        { "path": "D", "cost": 1 },
+        { "path": "E", "cost": 2 }
+        ],
+        "B": [
+        { "path": "C", "cost": 1 },
+        { "path": "D", "cost": 1 },
+        { "path": "E", "cost": 3 },
+        { "path": "F", "cost": 3 }
+        ],
+        "C": [
+        { "path": "B", "cost": 2 },
+        { "path": "D", "cost": 1 },
+        { "path": "E", "cost": 3 }
+        ],
+        "D": [
+        { "path": "A", "cost": 3 },
+        { "path": "B", "cost": 3 },
+        { "path": "C", "cost": 2 },
+        { "path": "E", "cost": 2 }
+        ],
+        "E": [
+        { "path": "A", "cost": 3 },
+        { "path": "B", "cost": 3 },
+        { "path": "C", "cost": 2 },
+        { "path": "D", "cost": 2 },
+        { "path": "F", "cost": 2 }
+        ],
+        "F": [
+        { "path": "B", "cost": 1 },
+        { "path": "E", "cost": 2 }
+        ]
     }
 }
